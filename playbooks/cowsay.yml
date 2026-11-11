@@ -1,0 +1,13 @@
+- name: Install cowsay
+  hosts: servers
+  become: true
+  tasks:
+    - name: Install EPEL
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+
+    - name: Install Cowsay
+      ansible.builtin.dnf:
+        name: cowsay
+        state: present
