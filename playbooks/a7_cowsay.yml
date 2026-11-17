@@ -1,4 +1,4 @@
-- name: Install cowsay
+- name: Assignment 6 - Install cowsay
   hosts: servers
   become: true
   tasks:
