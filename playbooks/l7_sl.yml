@@ -1,0 +1,20 @@
+- name: Lecture 7 - manage sl
+  become: true
+  hosts: servers
+  vars:
+    # using a fixed string a playbook-scoped variable
+    package_name: sl
+
+    # using a variable defined elsewhere as a value for playbook-scoped variable
+    package_state: "{{ sl_state }}"
+  tasks:
+    - name: Install EPEL
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+      when: package_state == "present"
+
+    - name: Install/remove the sl package
+      ansible.builtin.package:
+        name: "{{ package_name }}"
+        state: "{{ package_state }}"

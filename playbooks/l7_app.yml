@@ -1,0 +1,77 @@
+- name: Lecture 7 - manage demo app
+  become: true
+  hosts: servers
+  vars:
+
+    # the directory for the example app (we choose to put it to /opt, as it has its own structure inside that directory)
+    app_directory: /opt/l7_app
+
+    # the app name used in the service file
+    app_description: Demo app for Lecture 7
+
+    # the app port (templated to the service which provides it as env variable to the app)
+    app_port: 8080
+
+    # the filename for the app's code
+    app_file: "{{ app_directory }}/app.js"
+
+    # the name of the app (used as filename and when manipulating the service, must contain the .service filename extension)
+    app_service_name: l7_app.service
+
+    # for demonstration of symlink creation, the service file is stored in app_directory and linked to /etc/systemd/system,
+    # normally service file is templated out directly to /etc/systemd/system
+    app_service_file: "{{ app_directory }}/{{ app_service_name }}"
+
+    # filename must match that of the link target (in app_directory), because systemd expects that for proper working
+    app_service_link: "/etc/systemd/system/{{ app_service_name }}"
+  tasks:
+    - name: Install nodejs package
+      ansible.builtin.package:
+        name: nodejs
+        state: present
+
+    - name: Create directory for the demo app
+      ansible.builtin.file:
+        name: "{{ app_directory }}"
+        state: directory
+        # owner and mode should always be specified
+        owner: root
+        # mode should always be quoted because Ansible needs it as a string
+        # and YAML would recognize it as a number when without quotes
+        mode: '755'
+
+    - name: Copy app.js from control node to the host
+      ansible.builtin.copy:
+        # src can be specified hard-coded as it is in this repository
+        # local files are relative to the playbooks's directory
+        src: ../l7_app_files/app.js
+        dest: "{{ app_file }}"
+        # owner and mode should always be specified
+        owner: root
+        # mode should always be quoted because Ansible needs it as a string
+        # and YAML would recognize it as a number when without quotes
+        mode: '644'
+
+    - name: Create a service file from a template
+      ansible.builtin.template:
+        # src can be specified hard-coded as it is in this repository
+        # local templates are relative to the playbooks's directory
+        src: ../l7_app_files/app.service.j2
+        dest: "{{ app_service_file }}"
+        # owner and mode should always be specified
+        owner: root
+        # mode should always be quoted because Ansible needs it as a string
+        # and YAML would recognize it as a number when without quotes
+        mode: '644'
+
+    - name: Link the service file to /etc/systemd/system
+      ansible.builtin.file:
+        src: "{{ app_service_file }}"
+        dest: "{{ app_service_link }}"
+        state: link
+
+    - name: Enable and start the service
+      ansible.builtin.systemd_service:
+        name: "{{ app_service_name }}"
+        state: started
+        enabled: true

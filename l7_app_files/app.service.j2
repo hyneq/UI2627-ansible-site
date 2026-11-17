@@ -1,0 +1,9 @@
+[Unit]
+Description={{ app_description }}
+
+[Service]
+ExecStart=node {{ app_file }}
+Environment=APP_PORT={{ app_port }}
+
+[Install]
+WantedBy=multi-user.target

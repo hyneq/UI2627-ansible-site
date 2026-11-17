@@ -1,0 +1,15 @@
+- name: Lecture 7 - used and unused
+  hosts: servers
+  vars:
+    existent: Hello
+
+    # referencing `existent` variable
+    used: "{{ existent }}"
+
+    # lazy evaluation: as long as `unused` is not used,
+    # Ansible doesn't care that the referenced variable `nonexistent` is never used
+    unused: "{{ nonexistent }}"
+  tasks:
+    - name: Show used variable
+      ansible.builtin.debug:
+        var: used

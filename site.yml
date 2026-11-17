@@ -5,3 +5,6 @@
 
 - name: Install cowsay
   ansible.builtin.import_playbook: playbooks/a7_cowsay.yml
+
+- name: Install demo app
+  ansible.builtin.import_playbook: playbooks/l7_app.yml

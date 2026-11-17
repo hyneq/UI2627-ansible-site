@@ -1,0 +1,13 @@
+- name: Lecture 7 - priority
+  hosts: servers
+  vars:
+    # playbook-scoped (overrides host-scoped but overridden by task-scoped)
+    msg: message from playbook vars
+  tasks:
+    - name: Show variable
+      ansible.builtin.debug:
+        # Parameter `var` expects variable name, not ordinary string so there is no "{{ msg }}" syntax
+        var: msg
+      vars:
+        # task-scoped variable (overrides playbook-scoped and host-scoped)
+        msg: message from task vars

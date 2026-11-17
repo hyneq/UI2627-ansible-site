@@ -1,0 +1,5 @@
+# host-scoped variable (used in l7_sl.yml playbook)
+sl_state: absent
+
+# host-scoped variable (overridden in l7_priority.yml playbook)
+msg: message from host vars
