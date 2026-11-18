@@ -7,7 +7,7 @@
     app_directory: /opt/l7_app
 
     # the app name used in the service file
-    app_description: Demo app for Lecture 7
+    app_description: Demo app for Lecture 7 and 8
 
     # the app port (templated to the service which provides it as env variable to the app)
     app_port: 8080
@@ -51,6 +51,8 @@
         # mode should always be quoted because Ansible needs it as a string
         # and YAML would recognize it as a number when without quotes
         mode: '644'
+      # notify can reference a handler by names in the `listen` parameter
+      notify: reload_service
 
     - name: Create a service file from a template
       ansible.builtin.template:
@@ -63,15 +65,29 @@
         # mode should always be quoted because Ansible needs it as a string
         # and YAML would recognize it as a number when without quotes
         mode: '644'
+      # notify can reference a handler by its `name` parameter
+      notify: Reload the service
 
     - name: Link the service file to /etc/systemd/system
       ansible.builtin.file:
         src: "{{ app_service_file }}"
         dest: "{{ app_service_link }}"
         state: link
+      # notify can reference a handler by names in the `listen` parameter
+      notify: reload_service
 
     - name: Enable and start the service
       ansible.builtin.systemd_service:
         name: "{{ app_service_name }}"
         state: started
         enabled: true
+
+  handlers:
+    - name: Reload the service
+      ansible.builtin.systemd_service:
+        name: "{{ app_service_name }}"
+        daemon_reload: true
+        state: restarted
+      # alternative names to listen to
+      listen:
+        - reload_service
